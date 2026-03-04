@@ -1,8 +1,9 @@
+
 CREATE TABLE Usuario (
     id INT IDENTITY(1,1) PRIMARY KEY,
-    email VARCHAR(320) NOT NULL CHECK (email LIKE '%_@__%.__%'), -- Expresion regular que garantiza que siga un estandar general del correo electronico
+    email VARCHAR(320) NOT NULL CHECK (email LIKE '%_@__%.__%'),
     password_hash VARCHAR(60) NOT NULL,
-    nickname VARCHAR(50) NOT NULL,
+    nickname VARCHAR(50) NOT NULL UNIQUE,
     fecha_registro DATETIME2 NOT NULL DEFAULT GETDATE(),
     fecha_nacimiento DATE NOT NULL,
     pais VARCHAR(50) NOT NULL,
@@ -12,7 +13,7 @@ CREATE TABLE Usuario (
 CREATE TABLE Categoria (
     id INT PRIMARY KEY NOT NULL,
     nombre VARCHAR(50) NOT NULL,
-    descripcion VARCHAR(320) NOT NULL,
+    descripcion VARCHAR(320) NOT NULL
 );
 
 CREATE TABLE Creador (
@@ -22,13 +23,14 @@ CREATE TABLE Creador (
     banco_cuenta VARCHAR(50) NOT NULL,
     es_nsfw BIT NOT NULL,
     idCategoria INT NOT NULL,
+    FOREIGN KEY (idUsuario) REFERENCES  Usuario(id),
     FOREIGN KEY (idCategoria) REFERENCES Categoria(id)
 );
 
 CREATE TABLE MetodoPago (
     id INT IDENTITY(1,1),
     idUsuario INT NOT NULL,
-    ultimos_4_digitos INT NOT NULL CHECK (ultimos_4_digitos > 999 and ultimos_4_digitos < 10000),
+    ultimos_4_digitos CHAR(4) NOT NULL,
     marca VARCHAR(30) NOT NULL,
     titular VARCHAR(30) NOT NULL,
     fecha_expiracion DATE NOT NULL,
@@ -42,7 +44,7 @@ CREATE TABLE NivelSucripcion (
     idCreador INT NOT NULL,
     nombre VARCHAR(50) NOT NULL,
     descripcion VARCHAR(320) NOT NULL,
-    precio_actual DECIMAL(10,2) NOT NULL, -- Esto lo hacemos para garantizar exactitud absoluta guardando 10 digitos en total y guardando solo 2 para los centimos.
+    precio_actual DECIMAL(10,2) NOT NULL CHECK (precio_actual >= 0),
     esta_activo BIT NOT NULL,
     orden TINYINT NOT NULL,
     FOREIGN KEY (idCreador) REFERENCES Creador(idUsuario)
@@ -55,8 +57,8 @@ CREATE TABLE Suscripcion (
     fecha_inicio DATE NOT NULL,
     fecha_renovacion DATE,
     fecha_fin DATE NOT NULL,
-    estado VARCHAR(9) NOT NULL CHECK (estado = 'Activa' or 'Cancelada' or 'Vencida'),
-    precio_pactado DECIMAL(10,2) NOT NULL
+    estado VARCHAR(9) NOT NULL CHECK (estado IN ('Activa', 'Cancelada', 'Vencida')),
+    precio_pactado DECIMAL(10,2) NOT NULL CHECK (precio_pactado >= 0),
     FOREIGN KEY(idUsuario) REFERENCES Usuario(id),
     FOREIGN KEY(idNivel) REFERENCES NivelSucripcion(id)
 );
@@ -66,26 +68,26 @@ CREATE TABLE Factura (
     idSuscripcion INT NOT NULL,
     codigo_transaccion VARCHAR(32) NOT NULL,
     fecha_emision DATETIME2 NOT NULL,
-    sub_total DECIMAL(10,2) NOT NULL,
-    monto_impuesto DECIMAL(10,2) NOT NULL,
-    monto_total DECIMAL(10,2) NOT NULL,
+    sub_total DECIMAL(10,2) NOT NULL CHECK (sub_total >= 0),
+    monto_impuesto DECIMAL(10,2) NOT NULL CHECK (monto_impuesto >= 0),
+    monto_total DECIMAL(10,2) NOT NULL CHECK (monto_total >= 0),
     FOREIGN KEY (idSuscripcion) REFERENCES Suscripcion(id)
 );
 
 CREATE TABLE Publicacion (
     id INT IDENTITY (1,1) PRIMARY KEY,
     idCreador INT NOT NULL,
-    titulo VARCHAR(30) NOT NULL,
+    titulo NVARCHAR(60) NOT NULL,
     fecha_publicacion DATETIME2 NOT NULL,
     es_publica BIT NOT NULL,
-    tipo_contenido VARCHAR(6) NOT NULL CHECK (tipo_contenido = 'VIDEO' or 'TEXTO' or 'IMAGEN'),
+    tipo_contenido VARCHAR(6) NOT NULL CHECK (tipo_contenido IN ('VIDEO', 'TEXTO', 'IMAGEN')),
     FOREIGN KEY (idCreador) REFERENCES Creador (idUsuario)
 );
 
 CREATE TABLE Video (
     idPublicacion INT PRIMARY KEY NOT NULL,
     duracion_seg INT NOT NULL,
-    resolucion VARCHAR(5) NOT NULL CHECK (resolucion = '720p' or '1080p' or '4K'),
+    resolucion VARCHAR(5) NOT NULL CHECK (resolucion IN ('720p', '1080p', '4K')),
     url_stream VARCHAR(100) NOT NULL,
     FOREIGN KEY (idPublicacion) REFERENCES Publicacion(id)
 );
@@ -116,13 +118,13 @@ CREATE TABLE Comentario (
     fecha DATETIME2 NOT NULL,
     FOREIGN KEY (idUsuario) REFERENCES Usuario(id),
     FOREIGN KEY (idPublicacion) REFERENCES Publicacion(id),
-    FOREIGN KEY (id) REFERENCES Comentario(id)
+    FOREIGN KEY (idComentarioPadre) REFERENCES Comentario(id)
 );
 
 CREATE TABLE TipoReaccion (
     id INT PRIMARY KEY NOT NULL,
     nombre NVARCHAR(30) NOT NULL,
-    emoji_code NVARCHAR NOT NULL,
+    emoji_code NVARCHAR(10) NOT NULL
 );
 
 CREATE TABLE UsuarioReaccionPublicacion (
