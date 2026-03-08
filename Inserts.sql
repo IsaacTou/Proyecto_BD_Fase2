@@ -281,7 +281,7 @@ INSERT INTO Creador (idUsuario, biografia, banco_nombre, banco_cuenta, es_nsfw, 
 (24, 'Investigaciones profundas de crímenes sin resolver.', 'Caja Social', '1472583690', 0, 24),
 (25, 'Los mejores trucos para speedruns de Mario.', 'Inbursa', '3692581470', 0, 1);
 
-INSERT INTO NivelSucripcion (idCreador, nombre, descripcion, precio_actual, esta_activo, orden) VALUES
+INSERT INTO NivelSuscripcion (idCreador, nombre, descripcion, precio_actual, esta_activo, orden) VALUES
 (1, 'Bronce', 'Acceso a videos anticipados.', 4.99, 1, 1),
 (1, 'Oro', 'Juega conmigo en vivo los domingos.', 14.99, 1, 2),
 (2, 'Fit Básico', 'Rutinas semanales en PDF.', 9.99, 1, 1),

@@ -1,3 +1,5 @@
+USE [FanHub];
+GO
 
 CREATE TABLE Usuario (
     id INT IDENTITY(1,1) PRIMARY KEY,
@@ -39,7 +41,7 @@ CREATE TABLE MetodoPago (
     FOREIGN KEY (idUsuario) REFERENCES Usuario(id)
 );
 
-CREATE TABLE NivelSucripcion (
+CREATE TABLE NivelSuscripcion (
     id INT IDENTITY(1,1) PRIMARY KEY,
     idCreador INT NOT NULL,
     nombre VARCHAR(50) NOT NULL,
@@ -60,7 +62,7 @@ CREATE TABLE Suscripcion (
     estado VARCHAR(9) NOT NULL CHECK (estado IN ('Activa', 'Cancelada', 'Vencida')),
     precio_pactado DECIMAL(10,2) NOT NULL CHECK (precio_pactado >= 0),
     FOREIGN KEY(idUsuario) REFERENCES Usuario(id),
-    FOREIGN KEY(idNivel) REFERENCES NivelSucripcion(id)
+    FOREIGN KEY(idNivel) REFERENCES NivelSuscripcion(id)
 );
 
 CREATE TABLE Factura (
@@ -150,3 +152,4 @@ CREATE TABLE PublicacionEtiqueta (
     FOREIGN KEY (idPublicacion) REFERENCES Publicacion(id),
     FOREIGN KEY (idEtiqueta) REFERENCES Etiqueta(id)
 );
+GO
