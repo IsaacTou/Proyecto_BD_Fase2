@@ -618,6 +618,55 @@ BEGIN
 END;
 GO
 
+-- Trigger 3: trg_ValidarEdadUsuario (VERSIÓN CORREGIDA)
+-- Descripción: Evita que se registren usuarios menores de 13 años
+CREATE OR ALTER TRIGGER trg_ValidarEdadUsuario
+ON Usuario
+INSTEAD OF INSERT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @fecha_limite DATE;
+    DECLARE @hoy DATE = CAST(GETDATE() AS DATE);
+
+    -- Calcular la fecha mínima de nacimiento (hoy - 13 años)
+    SET @fecha_limite = DATEADD(YEAR, -13, @hoy);
+
+    -- Validar que TODOS los usuarios insertados sean > 13 años
+    IF EXISTS (
+        SELECT 1
+        FROM inserted
+        WHERE fecha_nacimiento > @fecha_limite
+    )
+    BEGIN
+        RAISERROR('Error: El usuario debe ser mayor de 13 años para registrarse.', 16, 1);
+        ROLLBACK TRANSACTION;
+        RETURN;
+    END
+
+    -- Si pasa la validación, insertar los registros normalmente
+    INSERT INTO Usuario (
+        email,
+        password_hash,
+        nickname,
+        fecha_registro,
+        fecha_nacimiento,
+        pais,
+        esta_activo
+    )
+    SELECT
+        i.email,
+        i.password_hash,
+        i.nickname,
+        i.fecha_registro,
+        i.fecha_nacimiento,
+        i.pais,
+        i.esta_activo
+    FROM inserted i;
+END;
+GO
+
 
 -- PRUEBAS DE FUNCIONES
 

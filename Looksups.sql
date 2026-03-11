@@ -66,13 +66,13 @@ BEGIN
     BEGIN TRY SET IDENTITY_INSERT TipoReaccion ON; END TRY BEGIN CATCH END CATCH;
 
     INSERT INTO TipoReaccion (id, nombre, emoji_code) VALUES
-    (1, 'Me gusta', '👍'),
-    (2, 'Me encanta', '❤️'),
-    (3, 'Me divierte', '😂'),
-    (4, 'Fuego', '🔥'),
-    (5, 'Me entristece', '😢'),
-    (6, 'Me asombra', '😲'),
-    (7, 'Me enfurece', '😡');
+    (1, 'Me gusta', N'👍'),
+    (2, 'Me encanta', N'❤️'),
+    (3, 'Me divierte', N'😂'),
+    (4, 'Fuego', N'🔥'),
+    (5, 'Me entristece', N'😢'),
+    (6, 'Me asombra', N'😲'),
+    (7, 'Me enfurece', N'😡');
 
     BEGIN TRY SET IDENTITY_INSERT TipoReaccion OFF; END TRY BEGIN CATCH END CATCH;
     PRINT 'Catálogo [TipoReaccion] insertado correctamente (7 registros).';

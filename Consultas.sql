@@ -236,7 +236,7 @@ GO
 -- Columnas: Nickname, Fecha Última Suscripción, Monto Gastado
 SELECT 
     u.nickname,
-    MAX(s.fecha_renovacion) AS [Fecha Última Suscripción],
+    COALESCE(MAX(s.fecha_renovacion), MAX(s.fecha_inicio)),
     ISNULL(SUM(f.monto_total), 0) AS [Monto Gastado]
 FROM Usuario u
 INNER JOIN Suscripcion s ON u.id = s.idUsuario
