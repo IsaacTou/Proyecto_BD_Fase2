@@ -6073,27 +6073,27 @@ DECLARE @PostPol1 INT, @PostPol2 INT, @PostAma INT, @PostFro INT;
 -- Creadores
 INSERT INTO Usuario (email, password_hash, nickname, fecha_nacimiento, pais, esta_activo)
 VALUES ('pol@fan.com', 'hash', 'EstrategaPolemico', '1995-01-01', 'Venezuela', 1);
-SET @CreadorPol = SCOPE_IDENTITY();
+SET @CreadorPol = (SELECT id FROM Usuario WHERE email = 'pol@fan.com');
 
 INSERT INTO Usuario (email, password_hash, nickname, fecha_nacimiento, pais, esta_activo)
 VALUES ('ama@fan.com', 'hash', 'GamerQuerido', '1998-05-05', 'México', 1);
-SET @CreadorAma = SCOPE_IDENTITY();
+SET @CreadorAma = (SELECT id FROM Usuario WHERE email = 'ama@fan.com');
 
 INSERT INTO Usuario (email, password_hash, nickname, fecha_nacimiento, pais, esta_activo)
 VALUES ('fro@fan.com', 'hash', 'JugadorFrontera', '1996-02-02', 'Colombia', 1);
-SET @CreadorFro = SCOPE_IDENTITY();
+SET @CreadorFro = (SELECT id FROM Usuario WHERE email = 'fro@fan.com');
 
 -- Fans (Para interactuar)
 INSERT INTO Usuario (email, password_hash, nickname, fecha_nacimiento, pais, esta_activo) VALUES ('f1@fan.com', 'h', 'Fan_1', '2000-01-01', 'Chile', 1);
-SET @Fan1 = SCOPE_IDENTITY();
+SET @Fan1 = (SELECT id FROM Usuario WHERE email = 'f1@fan.com');
 INSERT INTO Usuario (email, password_hash, nickname, fecha_nacimiento, pais, esta_activo) VALUES ('f2@fan.com', 'h', 'Fan_2', '2000-01-01', 'Perú', 1);
-SET @Fan2 = SCOPE_IDENTITY();
+SET @Fan2 = (SELECT id FROM Usuario WHERE email = 'f2@fan.com');
 INSERT INTO Usuario (email, password_hash, nickname, fecha_nacimiento, pais, esta_activo) VALUES ('f3@fan.com', 'h', 'Fan_3', '2000-01-01', 'España', 1);
-SET @Fan3 = SCOPE_IDENTITY();
+SET @Fan3 = (SELECT id FROM Usuario WHERE email = 'f3@fan.com');
 INSERT INTO Usuario (email, password_hash, nickname, fecha_nacimiento, pais, esta_activo) VALUES ('f4@fan.com', 'h', 'Fan_4', '2000-01-01', 'Argentina', 1);
-SET @Fan4 = SCOPE_IDENTITY();
+SET @Fan4 = (SELECT id FROM Usuario WHERE email = 'f4@fan.com');
 INSERT INTO Usuario (email, password_hash, nickname, fecha_nacimiento, pais, esta_activo) VALUES ('f5@fan.com', 'h', 'Fan_5', '2000-01-01', 'Uruguay', 1);
-SET @Fan5 = SCOPE_IDENTITY();
+SET @Fan5 = (SELECT id FROM Usuario WHERE email = 'f5@fan.com');
 
 -- ==========================================
 -- 2. CREADORES (Enlazados a la Categoría 1: Gaming)
@@ -6104,68 +6104,69 @@ INSERT INTO Creador (idUsuario, biografia, banco_nombre, banco_cuenta, es_nsfw, 
 (@CreadorFro, 'Análisis de mecánicas.', 'Banco C', '333', 0, 1);
 
 -- ==========================================
--- 3. PUBLICACIONES (Tienen IDENTITY)
+-- CONTINUACIÓN: POSTS DE CREADORES POLÉMICOS
 -- ==========================================
 -- Post Polémico 1
 INSERT INTO Publicacion (idCreador, titulo, fecha_publicacion, es_publica, tipo_contenido)
 VALUES (@CreadorPol, N'Victoria 3 es un simulador de Excel', GETDATE(), 1, 'TEXTO');
-SET @PostPol1 = SCOPE_IDENTITY();
+
+SET @PostPol1 = (SELECT id FROM Publicacion WHERE idCreador = @CreadorPol AND titulo = N'Victoria 3 es un simulador de Excel');
 INSERT INTO Texto (idPublicacion, contenido_html, resumen_gratuito) VALUES (@PostPol1, '<p>Falta combate</p>', 'Resumen');
 
 -- Post Polémico 2
 INSERT INTO Publicacion (idCreador, titulo, fecha_publicacion, es_publica, tipo_contenido)
 VALUES (@CreadorPol, N'Hearts of Iron IV es demasiado fácil', GETDATE(), 1, 'TEXTO');
-SET @PostPol2 = SCOPE_IDENTITY();
+
+SET @PostPol2 = (SELECT id FROM Publicacion WHERE idCreador = @CreadorPol AND titulo = N'Hearts of Iron IV es demasiado fácil');
 INSERT INTO Texto (idPublicacion, contenido_html, resumen_gratuito) VALUES (@PostPol2, '<p>La IA es predecible</p>', 'Resumen');
 
 -- Post Amado
 INSERT INTO Publicacion (idCreador, titulo, fecha_publicacion, es_publica, tipo_contenido)
 VALUES (@CreadorAma, N'Mi primera conquista mundial', GETDATE(), 1, 'TEXTO');
-SET @PostAma = SCOPE_IDENTITY();
+
+SET @PostAma = (SELECT id FROM Publicacion WHERE idCreador = @CreadorAma AND titulo = N'Mi primera conquista mundial');
 INSERT INTO Texto (idPublicacion, contenido_html, resumen_gratuito) VALUES (@PostAma, '<p>Me costó 40 horas</p>', 'Resumen');
 
 -- Post Frontera
 INSERT INTO Publicacion (idCreador, titulo, fecha_publicacion, es_publica, tipo_contenido)
 VALUES (@CreadorFro, N'Tier list de mods para Hytale', GETDATE(), 1, 'TEXTO');
-SET @PostFro = SCOPE_IDENTITY();
+
+SET @PostFro = (SELECT id FROM Publicacion WHERE idCreador = @CreadorFro AND titulo = N'Tier list de mods para Hytale');
 INSERT INTO Texto (idPublicacion, contenido_html, resumen_gratuito) VALUES (@PostFro, '<p>Mis favoritos</p>', 'Resumen');
 
 -- ==========================================
--- 4. REACCIONES (Usando TipoReaccion 1: Me gusta)
+-- REACCIONES Y COMENTARIOS
 -- ==========================================
 INSERT INTO UsuarioReaccionPublicacion (idUsuario, idPublicacion, idTipoReaccion, fecha_reaccion) VALUES
 -- Polémico (1 like por post)
-(@Fan1, @PostPol1, 1, GETDATE()),
-(@Fan1, @PostPol2, 1, GETDATE()),
+(@Fan1, @PostPol1, 1, GETDATE()), (@Fan1, @PostPol2, 1, GETDATE()),
 -- Amado (5 likes)
 (@Fan1, @PostAma, 1, GETDATE()), (@Fan2, @PostAma, 1, GETDATE()), (@Fan3, @PostAma, 1, GETDATE()), (@Fan4, @PostAma, 1, GETDATE()), (@Fan5, @PostAma, 1, GETDATE()),
 -- Frontera (2 likes)
 (@Fan1, @PostFro, 1, GETDATE()), (@Fan2, @PostFro, 1, GETDATE());
 
--- ==========================================
--- 5. COMENTARIOS (Manual IDs)
--- ==========================================
 INSERT INTO Comentario (id, idUsuario, idPublicacion, texto, fecha) VALUES
--- Post Polémico 1 (5 comentarios / 1 like = Ratio 5.0)
+-- Post Polémico 1 (5 comentarios)
 (90001, @Fan1, @PostPol1, N'No sabes jugar de verdad.', GETDATE()),
 (90002, @Fan2, @PostPol1, N'Totalmente en desacuerdo.', GETDATE()),
 (90003, @Fan3, @PostPol1, N'Aprende a gestionar la economía.', GETDATE()),
 (90004, @Fan4, @PostPol1, N'El sistema de guerra es mejor ahora.', GETDATE()),
 (90005, @Fan5, @PostPol1, N'Bórralo.', GETDATE()),
 
--- Post Polémico 2 (3 comentarios / 1 like = Ratio 3.0)  --> Promedio Final CreadorPol = 4.0
+-- Post Polémico 2 (3 comentarios)
 (90006, @Fan1, @PostPol2, N'Intenta jugar con Albania.', GETDATE()),
 (90007, @Fan2, @PostPol2, N'Juega en multijugador y verás.', GETDATE()),
 (90008, @Fan3, @PostPol2, N'Usa el mod Expert AI.', GETDATE()),
 
--- Post Amado (1 comentario / 5 likes = Ratio 0.2) --> Promedio Final CreadorAma = 0.2
+-- Post Amado (1 comentario)
 (90009, @Fan1, @PostAma, N'¡Felicidades, tremendo logro!', GETDATE()),
 
--- Post Frontera (4 comentarios / 2 likes = Ratio 2.0) --> Promedio Final CreadorFro = 2.0
+-- Post Frontera (4 comentarios)
 (90010, @Fan1, @PostFro, N'Te faltó uno muy bueno.', GETDATE()),
 (90011, @Fan2, @PostFro, N'Excelente lista.', GETDATE()),
 (90012, @Fan3, @PostFro, N'Debatible el puesto 2.', GETDATE()),
 (90013, @Fan4, @PostFro, N'Anotados para probarlos.', GETDATE());
+
 
 -- ==========================================
 -- SCRIPT DE PRUEBA: USUARIOS LURKERS
@@ -6173,75 +6174,65 @@ INSERT INTO Comentario (id, idUsuario, idPublicacion, texto, fecha) VALUES
 DECLARE @IdCreadorRL INT, @IdLurker INT, @IdActivo INT, @IdVencido INT;
 DECLARE @IdNivelRL INT, @IdSuscripcionLurker INT, @IdSuscripcionActivo INT, @IdSuscripcionVencido INT, @IdPostRL INT;
 
--- ==========================================
--- 1. USUARIOS (Tienen IDENTITY)
--- ==========================================
--- El Creador
+-- 1. USUARIOS (Rastreados por email)
 INSERT INTO Usuario (email, password_hash, nickname, fecha_nacimiento, pais, esta_activo)
 VALUES ('creador_rl@fan.com', 'hash', 'RocketPro', '1999-01-01', 'Venezuela', 1);
-SET @IdCreadorRL = SCOPE_IDENTITY();
+SET @IdCreadorRL = (SELECT id FROM Usuario WHERE email = 'creador_rl@fan.com');
 
--- Los Suscriptores
 INSERT INTO Usuario (email, password_hash, nickname, fecha_nacimiento, pais, esta_activo)
 VALUES ('silencio@fan.com', 'hash', 'FantasmaLurker', '2000-01-01', 'México', 1);
-SET @IdLurker = SCOPE_IDENTITY();
+SET @IdLurker = (SELECT id FROM Usuario WHERE email = 'silencio@fan.com');
 
 INSERT INTO Usuario (email, password_hash, nickname, fecha_nacimiento, pais, esta_activo)
 VALUES ('ruidoso@fan.com', 'hash', 'FanRuidoso', '2001-01-01', 'Colombia', 1);
-SET @IdActivo = SCOPE_IDENTITY();
+SET @IdActivo = (SELECT id FROM Usuario WHERE email = 'ruidoso@fan.com');
 
 INSERT INTO Usuario (email, password_hash, nickname, fecha_nacimiento, pais, esta_activo)
 VALUES ('viejo@fan.com', 'hash', 'ExLurker', '1995-01-01', 'España', 1);
-SET @IdVencido = SCOPE_IDENTITY();
+SET @IdVencido = (SELECT id FROM Usuario WHERE email = 'viejo@fan.com');
 
--- ==========================================
 -- 2. CREADOR Y NIVEL
--- ==========================================
 INSERT INTO Creador (idUsuario, biografia, banco_nombre, banco_cuenta, es_nsfw, idCategoria)
 VALUES (@IdCreadorRL, 'Jugadas y tutoriales de Rocket League', 'Banco', '123', 0, 1);
 
 INSERT INTO NivelSuscripcion (idCreador, nombre, descripcion, precio_actual, esta_activo, orden)
 VALUES (@IdCreadorRL, 'VIP Rocket', 'Acceso a tutoriales', 15.00, 1, 1);
-SET @IdNivelRL = SCOPE_IDENTITY();
+SET @IdNivelRL = (SELECT id FROM NivelSuscripcion WHERE idCreador = @IdCreadorRL AND nombre = 'VIP Rocket');
 
--- ==========================================
--- 3. SUSCRIPCIONES Y FACTURAS (Monto Gastado)
--- ==========================================
--- Lurker: Suscripción Activa + 2 facturas ($30 total)
-INSERT INTO Suscripcion (idUsuario, idNivel, fecha_inicio, fecha_fin, estado, precio_pactado)
-VALUES (@IdLurker, @IdNivelRL, '2026-01-01', '2026-12-31', 'Activa', 15.00);
-SET @IdSuscripcionLurker = SCOPE_IDENTITY();
+-- 3. SUSCRIPCIONES Y FACTURAS (Rastreados por Usuario + Nivel, incluyendo fecha_renovacion)
+-- Lurker:
+INSERT INTO Suscripcion (idUsuario, idNivel, fecha_inicio, fecha_renovacion, fecha_fin, estado, precio_pactado)
+VALUES (@IdLurker, @IdNivelRL, '2026-01-01', '2026-02-15', '2026-12-31', 'Activa', 15.00);
+SET @IdSuscripcionLurker = (SELECT id FROM Suscripcion WHERE idUsuario = @IdLurker AND idNivel = @IdNivelRL);
 
 INSERT INTO Factura (idSuscripcion, codigo_transaccion, fecha_emision, sub_total, monto_impuesto, monto_total) VALUES
 (@IdSuscripcionLurker, 'TX-LURK-1', '2026-01-01', 10.00, 5.00, 15.00),
 (@IdSuscripcionLurker, 'TX-LURK-2', '2026-02-01', 10.00, 5.00, 15.00);
 
--- Activo: Suscripción Activa + 1 factura ($15 total)
-INSERT INTO Suscripcion (idUsuario, idNivel, fecha_inicio, fecha_fin, estado, precio_pactado)
-VALUES (@IdActivo, @IdNivelRL, '2026-01-01', '2026-12-31', 'Activa', 15.00);
-SET @IdSuscripcionActivo = SCOPE_IDENTITY();
+-- Activo:
+INSERT INTO Suscripcion (idUsuario, idNivel, fecha_inicio, fecha_renovacion, fecha_fin, estado, precio_pactado)
+VALUES (@IdActivo, @IdNivelRL, '2026-01-01', '2026-02-15', '2026-12-31', 'Activa', 15.00);
+SET @IdSuscripcionActivo = (SELECT id FROM Suscripcion WHERE idUsuario = @IdActivo AND idNivel = @IdNivelRL);
 
 INSERT INTO Factura (idSuscripcion, codigo_transaccion, fecha_emision, sub_total, monto_impuesto, monto_total) VALUES
 (@IdSuscripcionActivo, 'TX-ACTIVO-1', '2026-01-01', 10.00, 5.00, 15.00);
 
--- Vencido: Suscripción Vencida + 1 factura vieja ($15 total)
-INSERT INTO Suscripcion (idUsuario, idNivel, fecha_inicio, fecha_fin, estado, precio_pactado)
-VALUES (@IdVencido, @IdNivelRL, '2025-01-01', '2025-12-31', 'Vencida', 15.00);
-SET @IdSuscripcionVencido = SCOPE_IDENTITY();
+-- Vencido:
+INSERT INTO Suscripcion (idUsuario, idNivel, fecha_inicio, fecha_renovacion, fecha_fin, estado, precio_pactado)
+VALUES (@IdVencido, @IdNivelRL, '2025-01-01', '2025-02-15', '2025-12-31', 'Vencida', 15.00);
+SET @IdSuscripcionVencido = (SELECT id FROM Suscripcion WHERE idUsuario = @IdVencido AND idNivel = @IdNivelRL);
 
 INSERT INTO Factura (idSuscripcion, codigo_transaccion, fecha_emision, sub_total, monto_impuesto, monto_total) VALUES
 (@IdSuscripcionVencido, 'TX-VENCIDO-1', '2025-01-01', 10.00, 5.00, 15.00);
 
--- ==========================================
+
 -- 4. PUBLICACIONES E INTERACCIONES
--- ==========================================
--- Creamos un post para que el FanRuidoso pueda interactuar
 INSERT INTO Publicacion (idCreador, titulo, fecha_publicacion, es_publica, tipo_contenido)
 VALUES (@IdCreadorRL, N'Tutorial de Aerials', GETDATE(), 1, 'VIDEO');
-SET @IdPostRL = SCOPE_IDENTITY();
+SET @IdPostRL = (SELECT id FROM Publicacion WHERE idCreador = @IdCreadorRL AND titulo = N'Tutorial de Aerials');
+
 INSERT INTO Video (idPublicacion, duracion_seg, resolucion, url_stream) VALUES (@IdPostRL, 600, '1080p', 'url_dummy');
 
--- SOLO EL FAN RUIDOSO INTERACTÚA (Un like y un comentario)
 INSERT INTO UsuarioReaccionPublicacion (idUsuario, idPublicacion, idTipoReaccion, fecha_reaccion)
 VALUES (@IdActivo, @IdPostRL, 1, GETDATE());
 
